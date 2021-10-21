@@ -1,0 +1,31 @@
+---
+title: "Lab #1 Assignment"
+author: "Wanja Waweru"
+date: 10/21/2021
+output: html_document
+---
+```{r}
+library(ggplot2)
+library(sf)
+library(tidyverse)
+library(ggspatial)
+library(viridis)
+```
+
+I had a hypothesis about this so I am going to use plots to answer
+my hypothesis about this things. Communicate some sort of scientific result
+to show how you understand the data.
+
+```{r}
+boulder <- st_read("/Users/dwwaweru/Desktop/UMich/Fall21/Geoviz/Advanced/lab1/Boulder_Data/BoulderSocialMedia.shp")
+
+```
+
+```{r}
+ggplot() +
+    geom_sf(data =boulder, aes(color=PT_Elev),
+    fill = NA, alpha = .2) +
+  scale_colour_gradientn(colours = terrain.colors(10)) +  
+  theme_bw()
+```
+
