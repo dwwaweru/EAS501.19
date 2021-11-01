@@ -148,24 +148,26 @@ for (i in 1:nrow(boulder_sm)) {
 
 
 Lastly, we can visualize our new collection of points to see the distribution of values.
-```{r Final map, message=FALSE, fig.cap = "Map 1. This map shows the distribution of the different types of images, those close to water features or close to landmarks. There is rather distinct clustering of the different types of images which indicates where certain features are located within Boulder Park. The map also shows that there are few water features within the study area. This is likely the most influential factor in the difference in the number of landmark and water feature photos. We would not have been able to notice this by the data alone showing the value of considering the spatial context of our results."}
+```{r Final map, message=FALSE, fig.cap = "Map 1. This map shows the distribution of the different types of images, those close to water features or close to landmarks. There is rather distinct clustering of the different types of images which indicates where certain features are located within Boulder Park."}
 ggplot() +
   annotation_map_tile(type = "http://a.tile.openstreetmap.fr/hot/${z}/${x}/${y}.png") +
   layer_spatial(boulder_sm, aes(col = as.factor(code))) +
   labs(fill = "Class") +
   scale_color_brewer(palette = "Set1")
 ```
+\n
+**Findings**: The basemap in Map 1 shows that there are few water features within the study area. This is likely the **most influential factor** in the difference in the number of landmark and water feature photos. We would not have been able to notice this by the data alone showing the value of considering the spatial context of our results.\n
 
 ## Questions:
-1.What are the benefits and challenges of an open data science approach? Give an example based on this week’s reading. (1-2 paragraphs)  
+*1.What are the benefits and challenges of an open data science approach? Give an example based on this week’s reading. (1-2 paragraphs)*  
 A benefit of open data science is that it provides researchers with the opportunity to gather interrelated data sets in order to better understand their subject matter. For instance, the "Big Data and human geography" article details how the Obama campaign was able to utilize many different data sets in order to build a comprehensive database of the demographics and interests of US voters. New and extensive data sets provide us with the opportunity to ask new questions and bring together information in a fresh and interesting way.  
 A challenge that was expressed in the readings, was the lack of rigor that may be used when analyzing open data science, particularly large volumes of data. Some researchers have argued that large volumes of data have the ability to "speak for themselves" and do not require utilizing the scientific process. While it is great that open data science makes data publicly accessible, it also makes it possible for individuals to use this data to draw conclusions that are not actually true or misrepresent the data.
 
-2. Knit a markdown document that demonstrates an analysis of this or other data (include: text explaining your analysis, figures and geovisualizations)  
+*2.Knit a markdown document that demonstrates an analysis of this or other data (include: text explaining your analysis, figures and geovisualizations) * 
 
-Bonus: Include a screen grab of the history of your git commits. What is your strategy for using git?  
+*Bonus: Include a screen grab of the history of your git commits. What is your strategy for using git?*    
 My strategy for using git in this assignment was to make commitments after completing
 a full pass of the entire document. For example, my first commit was after creating all of the chunks and the following commits were after reformatting the graphics and hierarchy of the different lines. In the future, it may be more useful to commit my file to git after completing each subsection of the code used to analyze the data. This would make it easier to go back and catch smaller changes in the analysis and not primarily in the document formatting stage.
 
-Git Commit History: ![](/Users/dwwaweru/Desktop/UMich/Fall21/Geoviz/Advanced/git/EAS501.19/lab1_git_commit2.png)
+**Git Commit History:** ![](/Users/dwwaweru/Desktop/UMich/Fall21/Geoviz/Advanced/git/EAS501.19/lab1_git_commit3.png)
 
