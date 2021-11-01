@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
-```{r Download Libraries, results='hide'}
+```{r Download Libraries, message=FALSE}
 library(ggplot2)
 library(sf)
 library(tidyverse)
@@ -21,13 +21,13 @@ library(dplyr)
 library(ggspatial)
 library(viridis)
 ```
-
+## Objective:  
 For this analysis, we are going to see if there are more social media images taken within 500 feet of water or within 500 feet of natural landmarks. This can indicate the level of interest in terrestrial and aquatic features within Boulder Park.
 
-## Preparing the data
+## I. Preparing the data
 
 Download the Boulder Data
-```{r Download Data, results='hide'}
+```{r Download Data, message=FALSE}
 boulder <- st_read("~/Desktop/UMich/Fall21/Geoviz/Advanced/lab1/Boulder_Data/BoulderSocialMedia.shp")
 ```
 
@@ -61,10 +61,10 @@ boulder_sm <- filter(boulder, DB ==  'Pano' | DB == 'Flickr')
 boulder_sm <- select(boulder_sm, c('NatMrk_Dis', 'Hydro_dis'))
 ```
 
-## Exploring the Data
+## II. Exploring the Data
 
 Create two new columns, called *near_water* and *near_lm*.Once these are created, we can assign the number of images within 500 feet of a landmark and the number of images within 500 feet of water to a variable.
-```{r Filtering Data}
+```{r Filtering Data, message=FALSE}
 boulder_sm  <- boulder_sm %>% 
   mutate(near_water = if_else(Hydro_dis <=500, TRUE, FALSE)) %>%
   mutate(near_lm = if_else(NatMrk_Dis <=500, TRUE, FALSE))
@@ -116,7 +116,7 @@ ggplot(count_data, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=category)) +
 
 **Findings**: More social media images were taken **near landmarks** than near water features.
 
-## Mapping the Image Locations
+## III. Mapping the Image Locations
 
 Next, we are getting ready to plot the data! It is useful to make sure our visualization does not double count points that are both near water and near landmarks. To clarify this designation we can reclassify the points as follows:
 
@@ -148,7 +148,7 @@ for (i in 1:nrow(boulder_sm)) {
 
 
 Lastly, we can visualize our new collection of points to see the distribution of values.
-```{r Final map, fig.cap = "Map 1. This map shows the distribution of the different types of images, those close to water features or close to landmarks. It is interesting to see the clustering of the different types of images which indicates where certain features are located within Boulder Park. The map also shows that there are few water features within the study area. This is likely the most influential factor in the difference in the number of landmark and water features. We would not have been able to notice this by the data alone showing the value of considering the spatial context of our results!"}
+```{r Final map, message=FALSE, fig.cap = "Map 1. This map shows the distribution of the different types of images, those close to water features or close to landmarks. There is rather distinct clustering of the different types of images which indicates where certain features are located within Boulder Park. The map also shows that there are few water features within the study area. This is likely the most influential factor in the difference in the number of landmark and water feature photos. We would not have been able to notice this by the data alone showing the value of considering the spatial context of our results."}
 ggplot() +
   annotation_map_tile(type = "http://a.tile.openstreetmap.fr/hot/${z}/${x}/${y}.png") +
   layer_spatial(boulder_sm, aes(col = as.factor(code))) +
@@ -165,7 +165,7 @@ A challenge that was expressed in the readings, was the lack of rigor that may b
 
 Bonus: Include a screen grab of the history of your git commits. What is your strategy for using git?  
 My strategy for using git in this assignment was to make commitments after completing
-a full pass of the entire document. For example, my first commit was after creating all of the chunks and the following commits were after reformatting the graphics and hierarchy of the different lines. In the future, it may be more useful to commit my file to git after completing each subsection of the code used to analyze the data. This would make it easier to go back and catch smaller changes to the analysis and not just within the formatting of the document.
+a full pass of the entire document. For example, my first commit was after creating all of the chunks and the following commits were after reformatting the graphics and hierarchy of the different lines. In the future, it may be more useful to commit my file to git after completing each subsection of the code used to analyze the data. This would make it easier to go back and catch smaller changes in the analysis and not primarily in the document formatting stage.
 
-image: ![](/Users/dwwaweru/Desktop/UMich/Fall21/Geoviz/Advanced/git/EAS501.19/lab1_git_commit.png)
+Git Commit History: ![](/Users/dwwaweru/Desktop/UMich/Fall21/Geoviz/Advanced/git/EAS501.19/lab1_git_commit2.png)
 
