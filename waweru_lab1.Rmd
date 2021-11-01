@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
-```{r}
+```{r Download Libraries, eval=FALSE}
 library(ggplot2)
 library(sf)
 library(tidyverse)
@@ -22,18 +22,22 @@ library(ggspatial)
 library(viridis)
 ```
 
-For this analysis, we are going to see if there are more social media images taken within 500 feet of water or within 500 feet of natural landmarks. This can indicate the level of interest in terrestrial and aquatic features within boulder park.
+For this analysis, we are going to see if there are more social media images taken within 500 feet of water or within 500 feet of natural landmarks. This can indicate the level of interest in terrestrial and aquatic features within Boulder Park.
 
 ## Preparing the data
 
 Download the Boulder Data
-```{r}
+```{r Download Data, eval=FALSE}
 boulder <- st_read("~/Desktop/UMich/Fall21/Geoviz/Advanced/lab1/Boulder_Data/BoulderSocialMedia.shp")
+```
+
+
+```{r Showing Data}
 head(boulder)
 ```
 
 Plot the Boulder data in order to get an understanding of the point distribution.
-```{r}
+```{r Map Unfiltered Points}
 #plot Boulder images
 ggplot() +
     geom_sf(data = boulder,
@@ -43,7 +47,7 @@ ggplot() +
 
 Since we are focusing on data in Colorado, we should project our points into a more
 appropriate coordinate system for the study area.
-```{r}
+```{r Reproject Points}
 boulder = st_transform(boulder, 26753) 
 ggplot() +
     geom_sf(data =boulder,
@@ -51,18 +55,16 @@ ggplot() +
     theme_bw()
 ```
 
-Next, we will filter the boulder data to only have social media data points.
-We will also limit the variables to the distance to a natural landmark (NatMrk_Dis) and the distance to a lakes, rivers, and creeks (Hydro_dis).
-```{r}
+Next, we will filter the boulder data to only have social media data points. We will also limit the variables to the distance to a natural landmark (*NatMrk_Dis*) and the distance to a lakes, rivers, and creeks (*Hydro_dis*).
+```{r filter points}
 boulder_sm <- filter(boulder, DB ==  'Pano' | DB == 'Flickr')
-boulder_sm <- select(boulder, c('NatMrk_Dis', 'Hydro_dis'))
+boulder_sm <- select(boulder_sm, c('NatMrk_Dis', 'Hydro_dis'))
 ```
 
 ## Exploring the Data
 
-Create two new columns, called near_water and near_lm.Once these are created,
-we can assign the count of the number of images within 500 feet of a landmark and the count of images within 500 feet of water to a variable.
-```{r}
+Create two new columns, called *near_water* and *near_lm*.Once these are created, we can assign the number of images within 500 feet of a landmark and the number of images within 500 feet of water to a variable.
+```{r Filtering Data}
 boulder_sm  <- boulder_sm %>% 
   mutate(near_water = if_else(Hydro_dis <=500, TRUE, FALSE)) %>%
   mutate(near_lm = if_else(NatMrk_Dis <=500, TRUE, FALSE))
@@ -72,7 +74,7 @@ near_h20 <- nrow(filter(boulder_sm, near_water == TRUE))
 near_land <- nrow(filter(boulder_sm, near_lm == TRUE))
 ```
 
-Next, we can create a chart to see the difference in the number of images that are near water, near a landmark, or do not meet this criteria.
+Next, we can create a chart to see the difference in the number of images that are near water, near a landmark, or do not meet this criteria.\n
 ```{r Creating plot, echo = FALSE, fig.cap="Chart 1. This donut chart shows the distribution of photos within 500 ft of water, landmarks, or neither. Most of the photos are not classified as near water or a landmark."}
 other <- nrow(boulder_sm)-(near_h20+near_land)
 count_data <- data.frame(
@@ -112,7 +114,7 @@ ggplot(count_data, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=category)) +
                         colour = "grey35"))
 ```
 
-### More social media images were taken **near landmarks** than near water features.
+**Findings**: More social media images were taken **near landmarks** than near water features.
 
 ## Mapping the Image Locations
 
@@ -125,7 +127,7 @@ Near Landmark  | 1
 Near Water & Landmark | 2
 Neither | 3
 
-```{r}
+```{r Reclassifying Images}
 boulder_sm['code'] <- as.character()
 for (i in 1:nrow(boulder_sm)) {
   row <- boulder_sm[i,]
@@ -145,34 +147,25 @@ for (i in 1:nrow(boulder_sm)) {
 ```
 
 
-```{r}
-p <- ggplot() +
-  annotation_spatial(boulder_sm) +
-  layer_spatial(boulder_sm, aes(col = as.factor(code))) +
-  scale_fill_manual(name = "Image Type", values = c("#2F86A6", "#34BE82", "#2FDD92", "#F2F013"))
-```
-
-
 Lastly, we can visualize our new collection of points to see the distribution of values.
-```{r}
+```{r Final map, fig.cap = "Map 1. This map shows the distribution of the different types of images, those close to water features or close to landmarks. It is intersting to see the clustering of the different types of images which indicates where certain featurs are located within Boulder Park."}
 ggplot() +
-  annotation_map_tile(type = "http://a.tile.thunderforest.com/outdoors/${z}/${x}/${y}.png") +
+  annotation_map_tile(type = "http://a.tile.openstreetmap.fr/hot/${z}/${x}/${y}.png") +
   layer_spatial(boulder_sm, aes(col = as.factor(code))) +
   labs(fill = "Class") +
   scale_color_brewer(palette = "Set1")
 ```
 
 ## Questions:
-1. What are the benefits and challenges of an open data science approach? Give an example based on this week’s reading. (1-2 paragraphs)  
-A benefit of open data science is that it provides researchers with the opportunity to gather interrelated data sets in order to better understand their subject matter. For instance, the "Big Data and human geography" article details how the Obama campaign was able to utilize many different data sets in order to build a comprehensive database of the demographics and interests of US voters. New and extensive data sets provide us with the opportunity to ask new questions and bring together information in a fresh and interesting way.
-
+1.What are the benefits and challenges of an open data science approach? Give an example based on this week’s reading. (1-2 paragraphs)  
+A benefit of open data science is that it provides researchers with the opportunity to gather interrelated data sets in order to better understand their subject matter. For instance, the "Big Data and human geography" article details how the Obama campaign was able to utilize many different data sets in order to build a comprehensive database of the demographics and interests of US voters. New and extensive data sets provide us with the opportunity to ask new questions and bring together information in a fresh and interesting way.  
 A challenge that was expressed in the readings, was the lack of rigor that may be used when analyzing open data science, particularly large volumes of data. Some researchers have argued that large volumes of data have the ability to "speak for themselves" and do not require utilizing the scientific process. While it is great that open data science makes data publicly accessible, it also makes it possible for individuals to use this data to draw conclusions that are not actually true or misrepresent the data.
 
 2. Knit a markdown document that demonstrates an analysis of this or other data (include: text explaining your analysis, figures and geovisualizations)  
 
 Bonus: Include a screen grab of the history of your git commits. What is your strategy for using git?  
 My strategy for using git in this assignment was to make commitments after completing
-a full pass of the entire document. For example, my first commit was after creating all of the chunks and the second commit was after reformatting the graphics and hierarchy of the different lines. The last commit was after spell checking the document. In the future, it may be more useful to commit my file to git after completing each subsection of the code used to analyze the data. This would make it easier to go back and catch smaller changes to the analysis and not just within the formatting of the document.
+a full pass of the entire document. For example, my first commit was after creating all of the chunks and the following commits were after reformatting the graphics and hierarchy of the different lines. In the future, it may be more useful to commit my file to git after completing each subsection of the code used to analyze the data. This would make it easier to go back and catch smaller changes to the analysis and not just within the formatting of the document.
 
-image: ![](path/to/smallorb.png)
+image: ![](/Users/dwwaweru/Desktop/UMich/Fall21/Geoviz/Advanced/git/EAS501.19/lab1_git_commit.png)
 
