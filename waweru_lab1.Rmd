@@ -1,0 +1,178 @@
+---
+title: "Lab #1 Assignment"
+author: "Wanja Waweru"
+date: 10/21/2021
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(ggplot2)
+library(sf)
+library(tidyverse)
+library(dplyr)
+library(ggspatial)
+library(viridis)
+```
+
+For this analysis, we are going to see if there are more social media images taken within 500 feet of water or within 500 feet of natural landmarks. This can indicate the level of interest in terrestrial and aquatic features within boulder park.
+
+## Preparing the data
+
+Download the Boulder Data
+```{r}
+boulder <- st_read("~/Desktop/UMich/Fall21/Geoviz/Advanced/lab1/Boulder_Data/BoulderSocialMedia.shp")
+head(boulder)
+```
+
+Plot the Boulder data in order to get an understanding of the point distribution.
+```{r}
+#plot Boulder images
+ggplot() +
+    geom_sf(data = boulder,
+    fill = NA, alpha = .2) +
+    theme_bw()
+```
+
+Since we are focusing on data in Colorado, we should project our points into a more
+appropriate coordinate system for the study area.
+```{r}
+boulder = st_transform(boulder, 26753) 
+ggplot() +
+    geom_sf(data =boulder,
+    fill = NA, alpha = .2) +
+    theme_bw()
+```
+
+Next, we will filter the boulder data to only have social media data points.
+We will also limit the variables to the distance to a natural landmark (NatMrk_Dis) and the distance to a lakes, rivers, and creeks (Hydro_dis).
+```{r}
+boulder_sm <- filter(boulder, DB ==  'Pano' | DB == 'Flickr')
+boulder_sm <- select(boulder, c('NatMrk_Dis', 'Hydro_dis'))
+```
+
+## Exploring the Data
+
+Create two new columns, called near_water and near_lm.Once these are created,
+we can assign the count of the number of images within 500 feet of a landmark and the count of images within 500 feet of water to a variable.
+```{r}
+boulder_sm  <- boulder_sm %>% 
+  mutate(near_water = if_else(Hydro_dis <=500, TRUE, FALSE)) %>%
+  mutate(near_lm = if_else(NatMrk_Dis <=500, TRUE, FALSE))
+
+head(boulder_sm)
+near_h20 <- nrow(filter(boulder_sm, near_water == TRUE))
+near_land <- nrow(filter(boulder_sm, near_lm == TRUE))
+```
+
+Next, we can create a chart to see the difference in the number of images that are near water, near a landmark, or do not meet this criteria.
+```{r Creating plot, echo = FALSE, fig.cap="Chart 1. This donut chart shows the distribution of photos within 500 ft of water, landmarks, or neither. Most of the photos are not classified as near water or a landmark."}
+other <- nrow(boulder_sm)-(near_h20+near_land)
+count_data <- data.frame(
+  category=c("Near Water", "Near Landmark", "Neither"),
+  count=c(near_h20, near_land, other))
+
+# Compute percentages
+count_data$fraction <- count_data$count / sum(count_data$count)
+
+# Compute the cumulative percentages (top of each rectangle)
+count_data$ymax <- cumsum(count_data$fraction)
+
+# Compute the bottom of each rectangle
+count_data$ymin <- c(0, head(count_data$ymax, n=-1))
+
+# Compute label position
+count_data$labelPosition <- (count_data$ymax + count_data$ymin) / 2
+
+# Compute a good label
+count_data$label <- paste0(count_data$category, "\n # of photos: ", count_data$count)
+
+# Make the plot
+ggplot(count_data, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=category)) +
+  geom_rect() +
+  geom_text( x=1.2, aes(y=labelPosition, label=label, color=category), size=4) + # x here controls label position (inner / outer)
+  scale_fill_brewer(palette=4) +
+  scale_color_brewer(palette=4) +
+  coord_polar(theta="y") +
+  xlim(c(-1, 4)) +
+  theme_void()+
+  theme(panel.border = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.position = "none",
+          panel.background = 
+          element_rect(fill = "grey35",
+                        colour = "grey35"))
+```
+
+## Mapping the Image Locations
+
+Next, we are getting ready to plot the data! It is useful to make sure our visualization does not double count points that are both near water and near landmarks. To clarify this designation we can reclassify the points as follows:
+
+Classification | Code
+-------------- | ------
+Near Water     | 0
+Near Landmark  | 1
+Near Water & Landmark | 2
+Neither | 3
+
+```{r}
+boulder_sm['code'] <- as.factor()
+for (i in 1:nrow(boulder_sm)) {
+  row <- boulder_sm[i,]
+  if (row$near_water == TRUE & row$near_lm == TRUE){ #BOTH
+  value = 2 
+  } else if (row$near_water == FALSE & row$near_lm == FALSE) { #NEITHER
+  value = 3 
+  } else if (row$near_water == FALSE & row$near_lm == TRUE) { #LANDMARK
+  value = 1 
+  } else { #water
+  value = 0
+  }
+  boulder_sm$code[i] <- value
+  #print(row$code)
+}
+# boulder_sm  <- boulder_sm %>% 
+#   mutate(code = if_else(near_water == TRUE & near_land == TRUE, 2, 3)) %>% 
+#   mutate(code = if_else(near_water == TRUE & near_land == FALSE, 0, 3)) %>% 
+#   mutate(code = if_else(near_water == FALSE & near_land == TRUE, 1, 3))
+                        
+                        
+#                         if_else(near_water == FALSE & near_land == FALSE, 3, if_else(near_water == TRUE & near_land == FALSE, 0, 1))))
+# 
+#view(boulder_sm)
+```
+
+
+```{r}
+p <- ggplot() +
+  annotation_spatial(boulder_sm) +
+  layer_spatial(boulder_sm, aes(col = as.factor(code)))
+p + scale_fill_manual(name = "Image Type", labels = c("Near Water", "Near Landmark", "Near Water & Landmark", "Neither"), values = c("#2F86A6", "#34BE82", "#2FDD92", "#F2F013"))
+```
+
+
+Lastly, we can visualize our new collection of points to see the distribution of values.
+```{r}
+ggplot() +
+  annotation_map_tile(type = "https://a.tiles.wmflabs.org/osm-no-labels/${z}/${x}/${y}.png") +
+  layer_spatial(boulder_sm, aes(col = code))+
+  scale_color_brewer(palette = "Spectral")
+```
+
+## Questions:
+1. What are the benefits and challenges of an open data science approach? Give an example based on this week’s reading. (1-2 paragraphs)  
+A benefit of open data science is that it provides researchers with the opportunties to gather interrealted datasets in order to better understand their subject matter. For instance, the "Big Data and human geography" article details how the Obama campaign was able to utlitze many different datasets in order to build a comprehensive database of the demographics and interests of US voters. New and extensive datasets provide us with the opportunity to ask new questions and bring together information in a fresh and interesting way.
+
+A challenge that was expressed in the readings, was the lack of rigour that may be used when analyzing open data science, particulalry large volumes of data. Some researchers have argued that large volumes of data have the ability to "speak for themselve" and do not require utilizing the scientific process. While it is great that open data science makes data publically accessible, it also makes it possible for individuals to use this data to draw conclusions that are not actually true or missrepresent the data.
+
+2. Knit a markdown document that demonstrates an analysis of this or other data (include: text explaining your analysis, figures and geovisualizations)  
+
+Bonus: Include a screen grab of the history of your git commits. What is your strategy for using git?
+My strategy for using git in this assignment was to make commitments after completing
+a full pass of the entire document. For example, my first commit was after creating all of the chunks and the second commit was after reformating the graphics and hierarchy of the different lines. The last commit was after spell checking the document. In the future, it may be more useful to commit my file to git after completing each subsection in order to capture smaller changes to the script.
