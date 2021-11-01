@@ -164,15 +164,15 @@ ggplot() +
 
 ## Questions:
 1. What are the benefits and challenges of an open data science approach? Give an example based on this week’s reading. (1-2 paragraphs)  
-A benefit of open data science is that it provides researchers with the opportunties to gather interrealted datasets in order to better understand their subject matter. For instance, the "Big Data and human geography" article details how the Obama campaign was able to utlitze many different datasets in order to build a comprehensive database of the demographics and interests of US voters. New and extensive datasets provide us with the opportunity to ask new questions and bring together information in a fresh and interesting way.
+A benefit of open data science is that it provides researchers with the opportunity to gather interrelated data sets in order to better understand their subject matter. For instance, the "Big Data and human geography" article details how the Obama campaign was able to utilize many different data sets in order to build a comprehensive database of the demographics and interests of US voters. New and extensive data sets provide us with the opportunity to ask new questions and bring together information in a fresh and interesting way.
 
-A challenge that was expressed in the readings, was the lack of rigour that may be used when analyzing open data science, particulalry large volumes of data. Some researchers have argued that large volumes of data have the ability to "speak for themselve" and do not require utilizing the scientific process. While it is great that open data science makes data publically accessible, it also makes it possible for individuals to use this data to draw conclusions that are not actually true or missrepresent the data.
+A challenge that was expressed in the readings, was the lack of rigor that may be used when analyzing open data science, particularly large volumes of data. Some researchers have argued that large volumes of data have the ability to "speak for themselves" and do not require utilizing the scientific process. While it is great that open data science makes data publicly accessible, it also makes it possible for individuals to use this data to draw conclusions that are not actually true or misrepresent the data.
 
 2. Knit a markdown document that demonstrates an analysis of this or other data (include: text explaining your analysis, figures and geovisualizations)  
 
-Bonus: Include a screen grab of the history of your git commits. What is your strategy for using git?
+Bonus: Include a screen grab of the history of your git commits. What is your strategy for using git?  
 My strategy for using git in this assignment was to make commitments after completing
-a full pass of the entire document. For example, my first commit was after creating all of the chunks and the second commit was after reformating the graphics and hierarchy of the different lines. The last commit was after spell checking the document. In the future, it may be more useful to commit my file to git after completing each subsection in order to capture smaller changes to the script.
+a full pass of the entire document. For example, my first commit was after creating all of the chunks and the second commit was after reformatting the graphics and hierarchy of the different lines. The last commit was after spell checking the document. In the future, it may be more useful to commit my file to git after completing each subsection of the code used to analyze the data. This would make it easier to go back and catch smaller changes to the analysis and not just within the formatting of the document.
 
 image: ![](path/to/smallorb.png)
 
