@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
-```{r Download Libraries, eval=FALSE}
+```{r Download Libraries, results='hide'}
 library(ggplot2)
 library(sf)
 library(tidyverse)
@@ -27,7 +27,7 @@ For this analysis, we are going to see if there are more social media images tak
 ## Preparing the data
 
 Download the Boulder Data
-```{r Download Data, eval=FALSE}
+```{r Download Data, results='hide'}
 boulder <- st_read("~/Desktop/UMich/Fall21/Geoviz/Advanced/lab1/Boulder_Data/BoulderSocialMedia.shp")
 ```
 
@@ -75,7 +75,7 @@ near_land <- nrow(filter(boulder_sm, near_lm == TRUE))
 ```
 
 Next, we can create a chart to see the difference in the number of images that are near water, near a landmark, or do not meet this criteria.\n
-```{r Creating plot, echo = FALSE, fig.cap="Chart 1. This donut chart shows the distribution of photos within 500 ft of water, landmarks, or neither. Most of the photos are not classified as near water or a landmark."}
+```{r Creating plot, fig.cap="Chart 1. This donut chart shows the distribution of photos within 500 ft of water, landmarks, or neither. Most of the photos are not classified as near water or a landmark."}
 other <- nrow(boulder_sm)-(near_h20+near_land)
 count_data <- data.frame(
   category=c("Near Water", "Near Landmark", "Neither"),
@@ -148,7 +148,7 @@ for (i in 1:nrow(boulder_sm)) {
 
 
 Lastly, we can visualize our new collection of points to see the distribution of values.
-```{r Final map, fig.cap = "Map 1. This map shows the distribution of the different types of images, those close to water features or close to landmarks. It is intersting to see the clustering of the different types of images which indicates where certain featurs are located within Boulder Park."}
+```{r Final map, fig.cap = "Map 1. This map shows the distribution of the different types of images, those close to water features or close to landmarks. It is interesting to see the clustering of the different types of images which indicates where certain features are located within Boulder Park. The map also shows that there are few water features within the study area. This is likely the most influential factor in the difference in the number of landmark and water features. We would not have been able to notice this by the data alone showing the value of considering the spatial context of our results!"}
 ggplot() +
   annotation_map_tile(type = "http://a.tile.openstreetmap.fr/hot/${z}/${x}/${y}.png") +
   layer_spatial(boulder_sm, aes(col = as.factor(code))) +
