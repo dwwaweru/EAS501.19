@@ -3,6 +3,8 @@ title: "Lab #1 Assignment"
 author: "Wanja Waweru"
 date: 10/21/2021
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -110,6 +112,8 @@ ggplot(count_data, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=category)) +
                         colour = "grey35"))
 ```
 
+### More social media images were taken **near landmarks** than near water features.
+
 ## Mapping the Image Locations
 
 Next, we are getting ready to plot the data! It is useful to make sure our visualization does not double count points that are both near water and near landmarks. To clarify this designation we can reclassify the points as follows:
@@ -122,47 +126,40 @@ Near Water & Landmark | 2
 Neither | 3
 
 ```{r}
-boulder_sm['code'] <- as.factor()
+boulder_sm['code'] <- as.character()
 for (i in 1:nrow(boulder_sm)) {
   row <- boulder_sm[i,]
   if (row$near_water == TRUE & row$near_lm == TRUE){ #BOTH
-  value = 2 
+  value = "Near Water & Landmark" 
   } else if (row$near_water == FALSE & row$near_lm == FALSE) { #NEITHER
-  value = 3 
+  value = "Neither"  
   } else if (row$near_water == FALSE & row$near_lm == TRUE) { #LANDMARK
-  value = 1 
+  value = "Near Landmark" 
   } else { #water
-  value = 0
+  value = "Near Water"
   }
   boulder_sm$code[i] <- value
   #print(row$code)
 }
-# boulder_sm  <- boulder_sm %>% 
-#   mutate(code = if_else(near_water == TRUE & near_land == TRUE, 2, 3)) %>% 
-#   mutate(code = if_else(near_water == TRUE & near_land == FALSE, 0, 3)) %>% 
-#   mutate(code = if_else(near_water == FALSE & near_land == TRUE, 1, 3))
-                        
-                        
-#                         if_else(near_water == FALSE & near_land == FALSE, 3, if_else(near_water == TRUE & near_land == FALSE, 0, 1))))
-# 
-#view(boulder_sm)
+
 ```
 
 
 ```{r}
 p <- ggplot() +
   annotation_spatial(boulder_sm) +
-  layer_spatial(boulder_sm, aes(col = as.factor(code)))
-p + scale_fill_manual(name = "Image Type", labels = c("Near Water", "Near Landmark", "Near Water & Landmark", "Neither"), values = c("#2F86A6", "#34BE82", "#2FDD92", "#F2F013"))
+  layer_spatial(boulder_sm, aes(col = as.factor(code))) +
+  scale_fill_manual(name = "Image Type", values = c("#2F86A6", "#34BE82", "#2FDD92", "#F2F013"))
 ```
 
 
 Lastly, we can visualize our new collection of points to see the distribution of values.
 ```{r}
 ggplot() +
-  annotation_map_tile(type = "https://a.tiles.wmflabs.org/osm-no-labels/${z}/${x}/${y}.png") +
-  layer_spatial(boulder_sm, aes(col = code))+
-  scale_color_brewer(palette = "Spectral")
+  annotation_map_tile(type = "http://a.tile.thunderforest.com/outdoors/${z}/${x}/${y}.png") +
+  layer_spatial(boulder_sm, aes(col = as.factor(code))) +
+  labs(fill = "Class") +
+  scale_color_brewer(palette = "Set1")
 ```
 
 ## Questions:
@@ -176,3 +173,6 @@ A challenge that was expressed in the readings, was the lack of rigour that may 
 Bonus: Include a screen grab of the history of your git commits. What is your strategy for using git?
 My strategy for using git in this assignment was to make commitments after completing
 a full pass of the entire document. For example, my first commit was after creating all of the chunks and the second commit was after reformating the graphics and hierarchy of the different lines. The last commit was after spell checking the document. In the future, it may be more useful to commit my file to git after completing each subsection in order to capture smaller changes to the script.
+
+image: ![](path/to/smallorb.png)
+
